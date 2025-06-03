@@ -1,0 +1,1375 @@
+
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preparació de Partit - Jornada 99</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Sans+Extra+Condensed:wght@400;600;700&family=Russo+One&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Fira Sans Extra Condensed', sans-serif;
+            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+            font-size: 14px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 15px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header h1 {
+            font-family: 'Fira Sans Extra Condensed', sans-serif;
+            font-size: 2.8rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .header h2 {
+            font-family: 'Fira Sans Extra Condensed', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 300;
+            opacity: 0.8;
+        }
+
+        .match-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .match-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .match-header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 20px;
+        }
+
+        .team-name {
+            font-family: 'Russo One', cursive;
+            font-size: 1.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .vs {
+            font-family: 'Fira Sans Extra Condensed', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 300;
+            opacity: 0.6;
+        }
+
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .analysis-section {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .analysis-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1);
+        }
+
+        .section-title {
+            font-family: 'Fira Sans Extra Condensed', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .metric-label {
+            font-family: 'Fira Sans Extra Condensed', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 400;
+            opacity: 0.8;
+        }
+
+        .metric-value {
+            font-family: 'Fira Sans Extra Condensed', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #4ecdc4;
+        }
+
+        .metric-value.high { color: #ff6b6b; }
+        .metric-value.medium { color: #ffa726; }
+        .metric-value.low { color: #66bb6a; }
+
+        .chart-container {
+            position: relative;
+            height: 120px;
+            margin-top: 10px;
+        }
+
+        .team-comparison {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 10px;
+            align-items: center;
+            margin: 10px 0;
+        }
+
+        .team-stat {
+            text-align: center;
+        }
+
+        .team-stat.local { text-align: right; }
+        .team-stat.visitant { text-align: left; }
+
+        .stat-value {
+            font-family: 'Fira Sans Extra Condensed', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 3px;
+        }
+
+        .stat-label {
+            font-family: 'Fira Sans Extra Condensed', sans-serif;
+            font-size: 0.75rem;
+            opacity: 0.7;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .vs-divider {
+            width: 2px;
+            height: 40px;
+            background: linear-gradient(to bottom, #ff6b6b, #4ecdc4);
+            border-radius: 2px;
+        }
+
+        .scorers-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .scorer-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .scorer-name {
+            font-family: 'Fira Sans Extra Condensed', sans-serif;
+            font-weight: 500;
+            color: #ffffff;
+            font-size: 0.9rem;
+        }
+
+        .scorer-stats {
+            font-family: 'Fira Sans Extra Condensed', sans-serif;
+            display: flex;
+            gap: 8px;
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        .goal-pair {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 6px 10px;
+            border-radius: 8px;
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .pair-names {
+            font-family: 'Fira Sans Extra Condensed', sans-serif;
+            font-weight: 500;
+            font-size: 0.85rem;
+        }
+
+        .pair-count {
+            font-family: 'Fira Sans Extra Condensed', sans-serif;
+            background: #4ecdc4;
+            color: #000;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        /* Distribució especial per la secció de gràfics */
+        .distribution-section {
+            grid-column: 1 / -1;
+            max-height: 300px;
+        }
+
+        .distribution-charts {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            height: 220px;
+        }
+
+        /* Compactar intervals temporals */
+        .interval-box {
+            margin-bottom: 12px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 8px;
+            border-left: 3px solid;
+        }
+
+        .interval-box.local { border-left-color: #ff6b6b; }
+        .interval-box.visitant { border-left-color: #4ecdc4; }
+
+        .interval-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        @media (max-width: 1400px) {
+            .analysis-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 1000px) {
+            .analysis-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 { font-size: 2rem; }
+            .team-name { font-size: 1.4rem; }
+            .analysis-grid { grid-template-columns: 1fr; }
+            .container { padding: 10px; }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header fade-in">
+            <h1>Anàlisi Pre-Partits</h1>
+            <h2>Comparativa de rendiments i perfils d'equips</h2>
+        </div>
+
+        <div class="match-card" style="animation-delay: 0s">
+            <div class="match-header">
+                <div class="team-name" style="color: #ff6b6b">Benfica</div>
+                <div class="vs">VS</div>
+                <div class="team-name" style="color: #4ecdc4">Barcelos</div>
+            </div>
+
+            <div class="analysis-grid">
+                <!-- RENDIMENT OFENSIU -->
+                <div class="analysis-section">
+                    <h3 class="section-title">Rendiment Ofensiu</h3>
+                    
+                    <div class="team-comparison">
+                        <div class="team-stat local">
+                            <div class="stat-value" style="color: #ff6b6b">35 (46%)</div>
+                            <div class="stat-label">Gols 1a Part (41.9%)</div>
+                        </div>
+                        <div class="vs-divider"></div>
+                        <div class="team-stat visitant">
+                            <div class="stat-value" style="color: #4ecdc4">22 (38%)</div>
+                            <div class="stat-label">Gols 1a Part (41.9%)</div>
+                        </div>
+                    </div>
+
+                    <div class="team-comparison">
+                        <div class="team-stat local">
+                            <div class="stat-value" style="color: #ff6b6b">41 (54%)</div>
+                            <div class="stat-label">Gols 2a Part (58.1%)</div>
+                        </div>
+                        <div class="vs-divider"></div>
+                        <div class="team-stat visitant">
+                            <div class="stat-value" style="color: #4ecdc4">36 (62%)</div>
+                            <div class="stat-label">Gols 2a Part (58.1%)</div>
+                        </div>
+                    </div>
+
+                    <div class="team-comparison">
+                        <div class="team-stat local">
+                            <div class="stat-value" style="color: #ff6b6b">6:00</div>
+                            <div class="stat-label">Interval Mitjà 1P (6:58)</div>
+                        </div>
+                        <div class="vs-divider"></div>
+                        <div class="team-stat visitant">
+                            <div class="stat-value" style="color: #4ecdc4">5:55</div>
+                            <div class="stat-label">Interval Mitjà 1P (6:58)</div>
+                        </div>
+                    </div>
+
+                    <div class="team-comparison">
+                        <div class="team-stat local">
+                            <div class="stat-value" style="color: #ff6b6b">6:18</div>
+                            <div class="stat-label">Interval Mitjà 2P (6:07)</div>
+                        </div>
+                        <div class="vs-divider"></div>
+                        <div class="team-stat visitant">
+                            <div class="stat-value" style="color: #4ecdc4">7:21</div>
+                            <div class="stat-label">Interval Mitjà 2P (6:07)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DINÀMICA -->
+                <div class="analysis-section">
+                    <h3 class="section-title">Dinàmica</h3>
+                    
+                    <div class="team-comparison">
+                        <div class="team-stat local">
+                            <div class="stat-value" style="color: #ff6b6b">4.22</div>
+                            <div class="stat-label">Mitjana Gols a Favor (2.9)</div>
+                        </div>
+                        <div class="vs-divider"></div>
+                        <div class="team-stat visitant">
+                            <div class="stat-value" style="color: #4ecdc4">3.05</div>
+                            <div class="stat-label">Mitjana Gols a Favor (2.9)</div>
+                        </div>
+                    </div>
+
+                    <div class="team-comparison">
+                        <div class="team-stat local">
+                            <div class="stat-value" style="color: #ff6b6b">2.06</div>
+                            <div class="stat-label">Mitjana Gols en Contra (3.0)</div>
+                        </div>
+                        <div class="vs-divider"></div>
+                        <div class="team-stat visitant">
+                            <div class="stat-value" style="color: #4ecdc4">2.53</div>
+                            <div class="stat-label">Mitjana Gols en Contra (3.0)</div>
+                        </div>
+                    </div>
+
+                    <div class="team-comparison">
+                        <div class="team-stat local">
+                            <div class="stat-value" style="color: #ff6b6b">2.17</div>
+                            <div class="stat-label">Mitjana Gol Average (-0.1)</div>
+                        </div>
+                        <div class="vs-divider"></div>
+                        <div class="team-stat visitant">
+                            <div class="stat-value" style="color: #4ecdc4">0.53</div>
+                            <div class="stat-label">Mitjana Gol Average (-0.1)</div>
+                        </div>
+                    </div>
+
+                    <div class="team-comparison">
+                        <div class="team-stat local">
+                            <div class="stat-value" style="color: #ff6b6b">2.17</div>
+                            <div class="stat-label">Mitjana de Punts (1.4)</div>
+                        </div>
+                        <div class="vs-divider"></div>
+                        <div class="team-stat visitant">
+                            <div class="stat-value" style="color: #4ecdc4">1.84</div>
+                            <div class="stat-label">Mitjana de Punts (1.4)</div>
+                        </div>
+                    </div>
+
+                    <div class="team-comparison">
+                        <div class="team-stat local">
+                            <div class="stat-value" style="color: #ff6b6b; font-family: monospace;">VVVVD</div>
+                            <div class="stat-label">Ratxa Últims 5 (GA: 1.60)</div>
+                        </div>
+                        <div class="vs-divider"></div>
+                        <div class="team-stat visitant">
+                            <div class="stat-value" style="color: #4ecdc4; font-family: monospace;">VDVDV</div>
+                            <div class="stat-label">Ratxa Últims 5 (GA: 0.60)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CAPACITAT DE REACCIÓ -->
+                <div class="analysis-section">
+                    <h3 class="section-title">Capacitat de Reacció</h3>
+                    
+                    <div class="team-comparison">
+                        <div class="team-stat local">
+                            <div class="stat-value" style="color: #ff6b6b">62.5%</div>
+                            <div class="stat-label">Taxa de Remuntada (34.2%)</div>
+                        </div>
+                        <div class="vs-divider"></div>
+                        <div class="team-stat visitant">
+                            <div class="stat-value" style="color: #4ecdc4">45.5%</div>
+                            <div class="stat-label">Taxa de Remuntada (34.2%)</div>
+                        </div>
+                    </div>
+
+                    <div class="team-comparison">
+                        <div class="team-stat local">
+                            <div class="stat-value" style="color: #ff6b6b">17.1%</div>
+                            <div class="stat-label">Millora 2a Part (50.0%)</div>
+                        </div>
+                        <div class="vs-divider"></div>
+                        <div class="team-stat visitant">
+                            <div class="stat-value" style="color: #4ecdc4">63.6%</div>
+                            <div class="stat-label">Millora 2a Part (50.0%)</div>
+                        </div>
+                    </div>
+
+                    <div class="team-comparison">
+                        <div class="team-stat local">
+                            <div class="stat-value" style="color: #ff6b6b">85.7%</div>
+                            <div class="stat-label">Manteniment Avantatge (64.8%)</div>
+                        </div>
+                        <div class="vs-divider"></div>
+                        <div class="team-stat visitant">
+                            <div class="stat-value" style="color: #4ecdc4">78.6%</div>
+                            <div class="stat-label">Manteniment Avantatge (64.8%)</div>
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <canvas id="reactionChart0" 
+                                data-chart-data='{"success": 5, "total": 8}'
+                                data-label="Remuntades"
+                                data-color="#4ecdc4"></canvas>
+                    </div>
+                </div>
+
+                <!-- PERFIL TÀCTIC -->
+                <div class="analysis-section">
+                    <h3 class="section-title">Perfil Tàctic</h3>
+                    
+                    <div class="team-comparison">
+                        <div class="team-stat local">
+                            <div class="stat-value" style="color: #ff6b6b">17.1%</div>
+                            <div class="stat-label">Vulnerabilitat Post-Gol (22.8%)</div>
+                        </div>
+                        <div class="vs-divider"></div>
+                        <div class="team-stat visitant">
+                            <div class="stat-value" style="color: #4ecdc4">19.0%</div>
+                            <div class="stat-label">Vulnerabilitat Post-Gol (22.8%)</div>
+                        </div>
+                    </div>
+
+                    <div class="team-comparison">
+                        <div class="team-stat local">
+                            <div class="stat-value" style="color: #ff6b6b">56.8%</div>
+                            <div class="stat-label">Reacció Post-Gol Rebut (39.4%)</div>
+                        </div>
+                        <div class="vs-divider"></div>
+                        <div class="team-stat visitant">
+                            <div class="stat-value" style="color: #4ecdc4">43.8%</div>
+                            <div class="stat-label">Reacció Post-Gol Rebut (39.4%)</div>
+                        </div>
+                    </div>
+
+                    <div class="team-comparison">
+                        <div class="team-stat local">
+                            <div class="stat-value" style="color: #ff6b6b">88.9%</div>
+                            <div class="stat-label">Victòries amb 1r Gol (58.2%)</div>
+                        </div>
+                        <div class="vs-divider"></div>
+                        <div class="team-stat visitant">
+                            <div class="stat-value" style="color: #4ecdc4">70.0%</div>
+                            <div class="stat-label">Victòries amb 1r Gol (58.2%)</div>
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <canvas id="momentsChart0" 
+                                data-chart-data='{"success": 8, "total": 9}'
+                                data-label="Primer Gol"
+                                data-color="#ff6b6b"></canvas>
+                    </div>
+                </div>
+
+                <!-- DISTRIBUCIÓ TEMPORAL DE GOLS -->
+                <div class="analysis-section" style="grid-column: 1 / -1;">
+                    <h3 class="section-title">Distribució de Gols per Períodes de 5 Minuts</h3>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <!-- Columna Equip Local -->
+                        <div>
+                            <div class="team-comparison" style="margin-bottom: 20px;">
+                                <div class="team-stat local">
+                                    <div class="stat-value" style="color: #ff6b6b">Benfica</div>
+                                    <div class="stat-label">Gols a Favor vs En Contra</div>
+                                </div>
+                            </div>
+                            
+                            <div class="chart-container" style="height: 350px; margin-bottom: 20px;">
+                                <canvas id="goalDistribution0Local" 
+                                        data-chart-data='[{"label":"1P 25-20","periodIndex":4,"part":1,"goalsFor":4,"goalsAgainst":1},{"label":"1P 20-15","periodIndex":3,"part":1,"goalsFor":9,"goalsAgainst":3},{"label":"1P 15-10","periodIndex":2,"part":1,"goalsFor":8,"goalsAgainst":3},{"label":"1P 10-5","periodIndex":1,"part":1,"goalsFor":8,"goalsAgainst":3},{"label":"1P 5-0","periodIndex":0,"part":1,"goalsFor":6,"goalsAgainst":3},{"label":"2P 25-20","periodIndex":9,"part":2,"goalsFor":8,"goalsAgainst":6},{"label":"2P 20-15","periodIndex":8,"part":2,"goalsFor":8,"goalsAgainst":6},{"label":"2P 15-10","periodIndex":7,"part":2,"goalsFor":8,"goalsAgainst":3},{"label":"2P 10-5","periodIndex":6,"part":2,"goalsFor":7,"goalsAgainst":5},{"label":"2P 5-0","periodIndex":5,"part":2,"goalsFor":10,"goalsAgainst":4}]'
+                                        data-team="Benfica"
+                                        data-color="#ff6b6b"></canvas>
+                            </div>
+                            
+                            <!-- GOLEJADORS LOCAL -->
+                            <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 15px; position: relative; overflow: hidden;">
+                                <div style="position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1);"></div>
+                                <h3 class="section-title">Golejadors Benfica</h3>
+                                
+                                <ul class="scorers-list">
+                                    
+                                        <li class="scorer-item">
+                                            <span class="scorer-name">Pau Bargalló</span>
+                                            <div class="scorer-stats">
+                                                <span>23 gols</span>
+                                                <span>1a: 7</span>
+                                                <span>2a: 16</span>
+                                            </div>
+                                        </li>
+                                    
+                                        <li class="scorer-item">
+                                            <span class="scorer-name">João Rodrigues</span>
+                                            <div class="scorer-stats">
+                                                <span>12 gols</span>
+                                                <span>1a: 5</span>
+                                                <span>2a: 7</span>
+                                            </div>
+                                        </li>
+                                    
+                                        <li class="scorer-item">
+                                            <span class="scorer-name">Lucas Ordóñez</span>
+                                            <div class="scorer-stats">
+                                                <span>11 gols</span>
+                                                <span>1a: 4</span>
+                                                <span>2a: 7</span>
+                                            </div>
+                                        </li>
+                                    
+                                        <li class="scorer-item">
+                                            <span class="scorer-name">Zé Miranda</span>
+                                            <div class="scorer-stats">
+                                                <span>9 gols</span>
+                                                <span>1a: 4</span>
+                                                <span>2a: 5</span>
+                                            </div>
+                                        </li>
+                                    
+                                        <li class="scorer-item">
+                                            <span class="scorer-name">Nil Roca</span>
+                                            <div class="scorer-stats">
+                                                <span>8 gols</span>
+                                                <span>1a: 5</span>
+                                                <span>2a: 3</span>
+                                            </div>
+                                        </li>
+                                    
+                                </ul>
+
+                                <div style="margin-top: 20px;">
+                                    <h4 style="color: #4ecdc4; margin-bottom: 10px;">Parelles de Gol</h4>
+                                    
+                                        <div class="goal-pair">
+                                            <span class="pair-names">João Rodrigues + Pau Bargalló</span>
+                                            <span class="pair-count">5</span>
+                                        </div>
+                                    
+                                        <div class="goal-pair">
+                                            <span class="pair-names">Pau Bargalló + Pau Bargalló</span>
+                                            <span class="pair-count">4</span>
+                                        </div>
+                                    
+                                        <div class="goal-pair">
+                                            <span class="pair-names">Lucas Ordóñez + Zé Miranda</span>
+                                            <span class="pair-count">3</span>
+                                        </div>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Columna Equip Visitant -->
+                        <div>
+                            <div class="team-comparison" style="margin-bottom: 20px;">
+                                <div class="team-stat visitant">
+                                    <div class="stat-value" style="color: #4ecdc4">Barcelos</div>
+                                    <div class="stat-label">Gols a Favor vs En Contra</div>
+                                </div>
+                            </div>
+                            
+                            <div class="chart-container" style="height: 350px; margin-bottom: 20px;">
+                                <canvas id="goalDistribution0Visitant" 
+                                        data-chart-data='[{"label":"1P 25-20","periodIndex":4,"part":1,"goalsFor":7,"goalsAgainst":5},{"label":"1P 20-15","periodIndex":3,"part":1,"goalsFor":4,"goalsAgainst":6},{"label":"1P 15-10","periodIndex":2,"part":1,"goalsFor":5,"goalsAgainst":1},{"label":"1P 10-5","periodIndex":1,"part":1,"goalsFor":6,"goalsAgainst":4},{"label":"1P 5-0","periodIndex":0,"part":1,"goalsFor":0,"goalsAgainst":2},{"label":"2P 25-20","periodIndex":9,"part":2,"goalsFor":8,"goalsAgainst":7},{"label":"2P 20-15","periodIndex":8,"part":2,"goalsFor":9,"goalsAgainst":4},{"label":"2P 15-10","periodIndex":7,"part":2,"goalsFor":5,"goalsAgainst":5},{"label":"2P 10-5","periodIndex":6,"part":2,"goalsFor":5,"goalsAgainst":5},{"label":"2P 5-0","periodIndex":5,"part":2,"goalsFor":9,"goalsAgainst":9}]'
+                                        data-team="Barcelos"
+                                        data-color="#4ecdc4"></canvas>
+                            </div>
+                            
+                            <!-- GOLEJADORS VISITANT -->
+                            <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 15px; position: relative; overflow: hidden;">
+                                <div style="position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1);"></div>
+                                <h3 class="section-title">Golejadors Barcelos</h3>
+                                
+                                <ul class="scorers-list">
+                                    
+                                        <li class="scorer-item">
+                                            <span class="scorer-name">Miguel Rocha</span>
+                                            <div class="scorer-stats">
+                                                <span>23 gols</span>
+                                                <span>1a: 7</span>
+                                                <span>2a: 16</span>
+                                            </div>
+                                        </li>
+                                    
+                                        <li class="scorer-item">
+                                            <span class="scorer-name">Danilo Rampulla</span>
+                                            <div class="scorer-stats">
+                                                <span>8 gols</span>
+                                                <span>1a: 4</span>
+                                                <span>2a: 4</span>
+                                            </div>
+                                        </li>
+                                    
+                                        <li class="scorer-item">
+                                            <span class="scorer-name">Pol Manrubia</span>
+                                            <div class="scorer-stats">
+                                                <span>8 gols</span>
+                                                <span>1a: 4</span>
+                                                <span>2a: 4</span>
+                                            </div>
+                                        </li>
+                                    
+                                        <li class="scorer-item">
+                                            <span class="scorer-name">Luís Querido</span>
+                                            <div class="scorer-stats">
+                                                <span>7 gols</span>
+                                                <span>1a: 3</span>
+                                                <span>2a: 4</span>
+                                            </div>
+                                        </li>
+                                    
+                                        <li class="scorer-item">
+                                            <span class="scorer-name">Pedro Silva</span>
+                                            <div class="scorer-stats">
+                                                <span>4 gols</span>
+                                                <span>1a: 1</span>
+                                                <span>2a: 3</span>
+                                            </div>
+                                        </li>
+                                    
+                                </ul>
+
+                                <div style="margin-top: 20px;">
+                                    <h4 style="color: #4ecdc4; margin-bottom: 10px;">Parelles de Gol</h4>
+                                    
+                                        <div class="goal-pair">
+                                            <span class="pair-names">Danilo Rampulla + Miguel Rocha</span>
+                                            <span class="pair-count">6</span>
+                                        </div>
+                                    
+                                        <div class="goal-pair">
+                                            <span class="pair-names">Miguel Rocha + Miguel Rocha</span>
+                                            <span class="pair-count">5</span>
+                                        </div>
+                                    
+                                        <div class="goal-pair">
+                                            <span class="pair-names">Miguel Rocha + Pedro Silva</span>
+                                            <span class="pair-count">3</span>
+                                        </div>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+        <div class="match-card" style="animation-delay: 0.2s">
+            <div class="match-header">
+                <div class="team-name" style="color: #ff6b6b">Sporting</div>
+                <div class="vs">VS</div>
+                <div class="team-name" style="color: #4ecdc4">Porto</div>
+            </div>
+
+            <div class="analysis-grid">
+                <!-- RENDIMENT OFENSIU -->
+                <div class="analysis-section">
+                    <h3 class="section-title">Rendiment Ofensiu</h3>
+                    
+                    <div class="team-comparison">
+                        <div class="team-stat local">
+                            <div class="stat-value" style="color: #ff6b6b">32 (51%)</div>
+                            <div class="stat-label">Gols 1a Part (41.9%)</div>
+                        </div>
+                        <div class="vs-divider"></div>
+                        <div class="team-stat visitant">
+                            <div class="stat-value" style="color: #4ecdc4">16 (32%)</div>
+                            <div class="stat-label">Gols 1a Part (41.9%)</div>
+                        </div>
+                    </div>
+
+                    <div class="team-comparison">
+                        <div class="team-stat local">
+                            <div class="stat-value" style="color: #ff6b6b">31 (49%)</div>
+                            <div class="stat-label">Gols 2a Part (58.1%)</div>
+                        </div>
+                        <div class="vs-divider"></div>
+                        <div class="team-stat visitant">
+                            <div class="stat-value" style="color: #4ecdc4">34 (68%)</div>
+                            <div class="stat-label">Gols 2a Part (58.1%)</div>
+                        </div>
+                    </div>
+
+                    <div class="team-comparison">
+                        <div class="team-stat local">
+                            <div class="stat-value" style="color: #ff6b6b">7:03</div>
+                            <div class="stat-label">Interval Mitjà 1P (6:58)</div>
+                        </div>
+                        <div class="vs-divider"></div>
+                        <div class="team-stat visitant">
+                            <div class="stat-value" style="color: #4ecdc4">4:53</div>
+                            <div class="stat-label">Interval Mitjà 1P (6:58)</div>
+                        </div>
+                    </div>
+
+                    <div class="team-comparison">
+                        <div class="team-stat local">
+                            <div class="stat-value" style="color: #ff6b6b">7:16</div>
+                            <div class="stat-label">Interval Mitjà 2P (6:07)</div>
+                        </div>
+                        <div class="vs-divider"></div>
+                        <div class="team-stat visitant">
+                            <div class="stat-value" style="color: #4ecdc4">7:42</div>
+                            <div class="stat-label">Interval Mitjà 2P (6:07)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DINÀMICA -->
+                <div class="analysis-section">
+                    <h3 class="section-title">Dinàmica</h3>
+                    
+                    <div class="team-comparison">
+                        <div class="team-stat local">
+                            <div class="stat-value" style="color: #ff6b6b">3.32</div>
+                            <div class="stat-label">Mitjana Gols a Favor (2.9)</div>
+                        </div>
+                        <div class="vs-divider"></div>
+                        <div class="team-stat visitant">
+                            <div class="stat-value" style="color: #4ecdc4">2.72</div>
+                            <div class="stat-label">Mitjana Gols a Favor (2.9)</div>
+                        </div>
+                    </div>
+
+                    <div class="team-comparison">
+                        <div class="team-stat local">
+                            <div class="stat-value" style="color: #ff6b6b">2.11</div>
+                            <div class="stat-label">Mitjana Gols en Contra (3.0)</div>
+                        </div>
+                        <div class="vs-divider"></div>
+                        <div class="team-stat visitant">
+                            <div class="stat-value" style="color: #4ecdc4">2.22</div>
+                            <div class="stat-label">Mitjana Gols en Contra (3.0)</div>
+                        </div>
+                    </div>
+
+                    <div class="team-comparison">
+                        <div class="team-stat local">
+                            <div class="stat-value" style="color: #ff6b6b">1.21</div>
+                            <div class="stat-label">Mitjana Gol Average (-0.1)</div>
+                        </div>
+                        <div class="vs-divider"></div>
+                        <div class="team-stat visitant">
+                            <div class="stat-value" style="color: #4ecdc4">0.50</div>
+                            <div class="stat-label">Mitjana Gol Average (-0.1)</div>
+                        </div>
+                    </div>
+
+                    <div class="team-comparison">
+                        <div class="team-stat local">
+                            <div class="stat-value" style="color: #ff6b6b">2.00</div>
+                            <div class="stat-label">Mitjana de Punts (1.4)</div>
+                        </div>
+                        <div class="vs-divider"></div>
+                        <div class="team-stat visitant">
+                            <div class="stat-value" style="color: #4ecdc4">2.06</div>
+                            <div class="stat-label">Mitjana de Punts (1.4)</div>
+                        </div>
+                    </div>
+
+                    <div class="team-comparison">
+                        <div class="team-stat local">
+                            <div class="stat-value" style="color: #ff6b6b; font-family: monospace;">VDVVD</div>
+                            <div class="stat-label">Ratxa Últims 5 (GA: 1.20)</div>
+                        </div>
+                        <div class="vs-divider"></div>
+                        <div class="team-stat visitant">
+                            <div class="stat-value" style="color: #4ecdc4; font-family: monospace;">EVVDV</div>
+                            <div class="stat-label">Ratxa Últims 5 (GA: 1.20)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CAPACITAT DE REACCIÓ -->
+                <div class="analysis-section">
+                    <h3 class="section-title">Capacitat de Reacció</h3>
+                    
+                    <div class="team-comparison">
+                        <div class="team-stat local">
+                            <div class="stat-value" style="color: #ff6b6b">50.0%</div>
+                            <div class="stat-label">Taxa de Remuntada (34.2%)</div>
+                        </div>
+                        <div class="vs-divider"></div>
+                        <div class="team-stat visitant">
+                            <div class="stat-value" style="color: #4ecdc4">50.0%</div>
+                            <div class="stat-label">Taxa de Remuntada (34.2%)</div>
+                        </div>
+                    </div>
+
+                    <div class="team-comparison">
+                        <div class="team-stat local">
+                            <div class="stat-value" style="color: #ff6b6b">-3.1%</div>
+                            <div class="stat-label">Millora 2a Part (50.0%)</div>
+                        </div>
+                        <div class="vs-divider"></div>
+                        <div class="team-stat visitant">
+                            <div class="stat-value" style="color: #4ecdc4">112.5%</div>
+                            <div class="stat-label">Millora 2a Part (50.0%)</div>
+                        </div>
+                    </div>
+
+                    <div class="team-comparison">
+                        <div class="team-stat local">
+                            <div class="stat-value" style="color: #ff6b6b">75.0%</div>
+                            <div class="stat-label">Manteniment Avantatge (64.8%)</div>
+                        </div>
+                        <div class="vs-divider"></div>
+                        <div class="team-stat visitant">
+                            <div class="stat-value" style="color: #4ecdc4">85.7%</div>
+                            <div class="stat-label">Manteniment Avantatge (64.8%)</div>
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <canvas id="reactionChart1" 
+                                data-chart-data='{"success": 5, "total": 10}'
+                                data-label="Remuntades"
+                                data-color="#4ecdc4"></canvas>
+                    </div>
+                </div>
+
+                <!-- PERFIL TÀCTIC -->
+                <div class="analysis-section">
+                    <h3 class="section-title">Perfil Tàctic</h3>
+                    
+                    <div class="team-comparison">
+                        <div class="team-stat local">
+                            <div class="stat-value" style="color: #ff6b6b">20.6%</div>
+                            <div class="stat-label">Vulnerabilitat Post-Gol (22.8%)</div>
+                        </div>
+                        <div class="vs-divider"></div>
+                        <div class="team-stat visitant">
+                            <div class="stat-value" style="color: #4ecdc4">20.0%</div>
+                            <div class="stat-label">Vulnerabilitat Post-Gol (22.8%)</div>
+                        </div>
+                    </div>
+
+                    <div class="team-comparison">
+                        <div class="team-stat local">
+                            <div class="stat-value" style="color: #ff6b6b">60.0%</div>
+                            <div class="stat-label">Reacció Post-Gol Rebut (39.4%)</div>
+                        </div>
+                        <div class="vs-divider"></div>
+                        <div class="team-stat visitant">
+                            <div class="stat-value" style="color: #4ecdc4">20.0%</div>
+                            <div class="stat-label">Reacció Post-Gol Rebut (39.4%)</div>
+                        </div>
+                    </div>
+
+                    <div class="team-comparison">
+                        <div class="team-stat local">
+                            <div class="stat-value" style="color: #ff6b6b">80.0%</div>
+                            <div class="stat-label">Victòries amb 1r Gol (58.2%)</div>
+                        </div>
+                        <div class="vs-divider"></div>
+                        <div class="team-stat visitant">
+                            <div class="stat-value" style="color: #4ecdc4">88.9%</div>
+                            <div class="stat-label">Victòries amb 1r Gol (58.2%)</div>
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <canvas id="momentsChart1" 
+                                data-chart-data='{"success": 8, "total": 10}'
+                                data-label="Primer Gol"
+                                data-color="#ff6b6b"></canvas>
+                    </div>
+                </div>
+
+                <!-- DISTRIBUCIÓ TEMPORAL DE GOLS -->
+                <div class="analysis-section" style="grid-column: 1 / -1;">
+                    <h3 class="section-title">Distribució de Gols per Períodes de 5 Minuts</h3>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <!-- Columna Equip Local -->
+                        <div>
+                            <div class="team-comparison" style="margin-bottom: 20px;">
+                                <div class="team-stat local">
+                                    <div class="stat-value" style="color: #ff6b6b">Sporting</div>
+                                    <div class="stat-label">Gols a Favor vs En Contra</div>
+                                </div>
+                            </div>
+                            
+                            <div class="chart-container" style="height: 350px; margin-bottom: 20px;">
+                                <canvas id="goalDistribution1Local" 
+                                        data-chart-data='[{"label":"1P 25-20","periodIndex":4,"part":1,"goalsFor":2,"goalsAgainst":4},{"label":"1P 20-15","periodIndex":3,"part":1,"goalsFor":12,"goalsAgainst":1},{"label":"1P 15-10","periodIndex":2,"part":1,"goalsFor":5,"goalsAgainst":8},{"label":"1P 10-5","periodIndex":1,"part":1,"goalsFor":3,"goalsAgainst":4},{"label":"1P 5-0","periodIndex":0,"part":1,"goalsFor":10,"goalsAgainst":2},{"label":"2P 25-20","periodIndex":9,"part":2,"goalsFor":7,"goalsAgainst":7},{"label":"2P 20-15","periodIndex":8,"part":2,"goalsFor":5,"goalsAgainst":8},{"label":"2P 15-10","periodIndex":7,"part":2,"goalsFor":5,"goalsAgainst":4},{"label":"2P 10-5","periodIndex":6,"part":2,"goalsFor":7,"goalsAgainst":0},{"label":"2P 5-0","periodIndex":5,"part":2,"goalsFor":7,"goalsAgainst":2}]'
+                                        data-team="Sporting"
+                                        data-color="#ff6b6b"></canvas>
+                            </div>
+                            
+                            <!-- GOLEJADORS LOCAL -->
+                            <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 15px; position: relative; overflow: hidden;">
+                                <div style="position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1);"></div>
+                                <h3 class="section-title">Golejadors Sporting</h3>
+                                
+                                <ul class="scorers-list">
+                                    
+                                        <li class="scorer-item">
+                                            <span class="scorer-name">Nolito Romero</span>
+                                            <div class="scorer-stats">
+                                                <span>18 gols</span>
+                                                <span>1a: 9</span>
+                                                <span>2a: 9</span>
+                                            </div>
+                                        </li>
+                                    
+                                        <li class="scorer-item">
+                                            <span class="scorer-name">Pedro Souto</span>
+                                            <div class="scorer-stats">
+                                                <span>9 gols</span>
+                                                <span>1a: 6</span>
+                                                <span>2a: 3</span>
+                                            </div>
+                                        </li>
+                                    
+                                        <li class="scorer-item">
+                                            <span class="scorer-name">Alessandro Verona</span>
+                                            <div class="scorer-stats">
+                                                <span>8 gols</span>
+                                                <span>1a: 4</span>
+                                                <span>2a: 4</span>
+                                            </div>
+                                        </li>
+                                    
+                                        <li class="scorer-item">
+                                            <span class="scorer-name">Toni Pérez</span>
+                                            <div class="scorer-stats">
+                                                <span>8 gols</span>
+                                                <span>1a: 4</span>
+                                                <span>2a: 4</span>
+                                            </div>
+                                        </li>
+                                    
+                                        <li class="scorer-item">
+                                            <span class="scorer-name">Roc Pujadas</span>
+                                            <div class="scorer-stats">
+                                                <span>7 gols</span>
+                                                <span>1a: 0</span>
+                                                <span>2a: 7</span>
+                                            </div>
+                                        </li>
+                                    
+                                </ul>
+
+                                <div style="margin-top: 20px;">
+                                    <h4 style="color: #4ecdc4; margin-bottom: 10px;">Parelles de Gol</h4>
+                                    
+                                        <div class="goal-pair">
+                                            <span class="pair-names">Alessandro Verona + Pedro Souto</span>
+                                            <span class="pair-count">3</span>
+                                        </div>
+                                    
+                                        <div class="goal-pair">
+                                            <span class="pair-names">Facundo Bridge + Pedro Souto</span>
+                                            <span class="pair-count">3</span>
+                                        </div>
+                                    
+                                        <div class="goal-pair">
+                                            <span class="pair-names">Nolito Romero + Nolito Romero</span>
+                                            <span class="pair-count">3</span>
+                                        </div>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Columna Equip Visitant -->
+                        <div>
+                            <div class="team-comparison" style="margin-bottom: 20px;">
+                                <div class="team-stat visitant">
+                                    <div class="stat-value" style="color: #4ecdc4">Porto</div>
+                                    <div class="stat-label">Gols a Favor vs En Contra</div>
+                                </div>
+                            </div>
+                            
+                            <div class="chart-container" style="height: 350px; margin-bottom: 20px;">
+                                <canvas id="goalDistribution1Visitant" 
+                                        data-chart-data='[{"label":"1P 25-20","periodIndex":4,"part":1,"goalsFor":2,"goalsAgainst":1},{"label":"1P 20-15","periodIndex":3,"part":1,"goalsFor":3,"goalsAgainst":6},{"label":"1P 15-10","periodIndex":2,"part":1,"goalsFor":2,"goalsAgainst":4},{"label":"1P 10-5","periodIndex":1,"part":1,"goalsFor":5,"goalsAgainst":6},{"label":"1P 5-0","periodIndex":0,"part":1,"goalsFor":4,"goalsAgainst":3},{"label":"2P 25-20","periodIndex":9,"part":2,"goalsFor":7,"goalsAgainst":5},{"label":"2P 20-15","periodIndex":8,"part":2,"goalsFor":8,"goalsAgainst":4},{"label":"2P 15-10","periodIndex":7,"part":2,"goalsFor":3,"goalsAgainst":6},{"label":"2P 10-5","periodIndex":6,"part":2,"goalsFor":10,"goalsAgainst":2},{"label":"2P 5-0","periodIndex":5,"part":2,"goalsFor":6,"goalsAgainst":3}]'
+                                        data-team="Porto"
+                                        data-color="#4ecdc4"></canvas>
+                            </div>
+                            
+                            <!-- GOLEJADORS VISITANT -->
+                            <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 15px; position: relative; overflow: hidden;">
+                                <div style="position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1);"></div>
+                                <h3 class="section-title">Golejadors Porto</h3>
+                                
+                                <ul class="scorers-list">
+                                    
+                                        <li class="scorer-item">
+                                            <span class="scorer-name">Gonçalo Alves</span>
+                                            <div class="scorer-stats">
+                                                <span>21 gols</span>
+                                                <span>1a: 9</span>
+                                                <span>2a: 12</span>
+                                            </div>
+                                        </li>
+                                    
+                                        <li class="scorer-item">
+                                            <span class="scorer-name">Carlo Benedetto</span>
+                                            <div class="scorer-stats">
+                                                <span>13 gols</span>
+                                                <span>1a: 4</span>
+                                                <span>2a: 9</span>
+                                            </div>
+                                        </li>
+                                    
+                                        <li class="scorer-item">
+                                            <span class="scorer-name">Helder Nunes</span>
+                                            <div class="scorer-stats">
+                                                <span>6 gols</span>
+                                                <span>1a: 3</span>
+                                                <span>2a: 3</span>
+                                            </div>
+                                        </li>
+                                    
+                                        <li class="scorer-item">
+                                            <span class="scorer-name">Ezequiel Mena</span>
+                                            <div class="scorer-stats">
+                                                <span>5 gols</span>
+                                                <span>1a: 0</span>
+                                                <span>2a: 5</span>
+                                            </div>
+                                        </li>
+                                    
+                                        <li class="scorer-item">
+                                            <span class="scorer-name">Edu Lamas</span>
+                                            <div class="scorer-stats">
+                                                <span>3 gols</span>
+                                                <span>1a: 0</span>
+                                                <span>2a: 3</span>
+                                            </div>
+                                        </li>
+                                    
+                                </ul>
+
+                                <div style="margin-top: 20px;">
+                                    <h4 style="color: #4ecdc4; margin-bottom: 10px;">Parelles de Gol</h4>
+                                    
+                                        <div class="goal-pair">
+                                            <span class="pair-names">Carlo Benedetto + Gonçalo Alves</span>
+                                            <span class="pair-count">5</span>
+                                        </div>
+                                    
+                                        <div class="goal-pair">
+                                            <span class="pair-names">Carlo Benedetto + Ezequiel Mena</span>
+                                            <span class="pair-count">4</span>
+                                        </div>
+                                    
+                                        <div class="goal-pair">
+                                            <span class="pair-names">Gonçalo Alves + Helder Nunes</span>
+                                            <span class="pair-count">3</span>
+                                        </div>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+    </div>
+    <script>
+        // Animacions i interactivitat
+        document.addEventListener('DOMContentLoaded', function() {
+            // Fade in animations
+            const observers = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('fade-in');
+                    }
+                });
+            });
+
+            document.querySelectorAll('.match-card, .analysis-section').forEach(el => {
+                observers.observe(el);
+            });
+        });
+
+        // Funció per crear gràfics
+        function createChart(canvasId, data, label, backgroundColor) {
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Èxit', 'Fallit'],
+                    datasets: [{
+                        data: [data.success, data.total - data.success],
+                        backgroundColor: [backgroundColor, 'rgba(255, 255, 255, 0.1)'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+        }
+
+        // Funció per crear gràfics de distribució de gols
+        function createGoalDistributionChart(canvasId, distributionData, teamName, color) {
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            
+            const labels = distributionData.map(period => period.label);
+            const goalsFor = distributionData.map(period => period.goalsFor);
+            const goalsAgainst = distributionData.map(period => -period.goalsAgainst); // Negatiu per mostrar cap avall
+            
+            // Calcular color més tenue per gols en contra
+            const againstColor = color === '#ff6b6b' ? 'rgba(255, 107, 107, 0.3)' : 'rgba(78, 205, 196, 0.3)';
+            const againstBorderColor = color === '#ff6b6b' ? 'rgba(255, 107, 107, 0.6)' : 'rgba(78, 205, 196, 0.6)';
+            
+            // Calcular línies de tendència per parts
+            const part1Data = distributionData.slice(0, 5).map(p => p.goalsFor);
+            const part2Data = distributionData.slice(5, 10).map(p => p.goalsFor);
+            
+            // Funció per calcular línia de tendència
+            function calculateTrendLine(data, startIndex) {
+                const n = data.length;
+                const sumX = data.reduce((sum, _, i) => sum + i, 0);
+                const sumY = data.reduce((sum, val) => sum + val, 0);
+                const sumXY = data.reduce((sum, val, i) => sum + i * val, 0);
+                const sumXX = data.reduce((sum, _, i) => sum + i * i, 0);
+                
+                const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
+                const intercept = (sumY - slope * sumX) / n;
+                
+                return data.map((_, i) => slope * i + intercept);
+            }
+            
+            const part1Trend = calculateTrendLine(part1Data, 0);
+            const part2Trend = calculateTrendLine(part2Data, 5);
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Gols a Favor',
+                        data: goalsFor,
+                        backgroundColor: color,
+                        borderColor: color,
+                        borderWidth: 1,
+                        order: 2
+                    }, {
+                        label: 'Gols en Contra',
+                        data: goalsAgainst,
+                        backgroundColor: againstColor,
+                        borderColor: againstBorderColor,
+                        borderWidth: 1,
+                        order: 2
+                    }, {
+                        label: 'Tendència 1a Part',
+                        data: [...part1Trend, null, null, null, null, null],
+                        type: 'line',
+                        borderColor: 'rgba(255, 255, 255, 0.8)',
+                        backgroundColor: 'transparent',
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        pointRadius: 0,
+                        order: 1
+                    }, {
+                        label: 'Tendència 2a Part',
+                        data: [null, null, null, null, null, ...part2Trend],
+                        type: 'line',
+                        borderColor: 'rgba(255, 255, 255, 0.8)',
+                        backgroundColor: 'transparent',
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        pointRadius: 0,
+                        order: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: {
+                                color: '#ffffff',
+                                font: {
+                                    family: 'Fira Sans Extra Condensed',
+                                    size: 12
+                                },
+                                filter: function(item) {
+                                    // Mostrar només les etiquetes principals
+                                    return ['Gols a Favor', 'Gols en Contra'].includes(item.text);
+                                }
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: teamName,
+                            color: '#ffffff',
+                            font: {
+                                family: 'Fira Sans Extra Condensed',
+                                size: 16,
+                                weight: 'bold'
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                color: '#ffffff',
+                                font: {
+                                    family: 'Fira Sans Extra Condensed',
+                                    size: 10
+                                },
+                                callback: function(value, index) {
+                                    // Afegir separador visual entre parts (ara després de la 1a part)
+                                    if (index === 5) {
+                                        return ' ' + this.getLabelForValue(value);
+                                    }
+                                    return this.getLabelForValue(value);
+                                }
+                            },
+                            grid: {
+                                color: function(context) {
+                                    // Línia més gruixuda entre parts (índex 4-5)
+                                    if (context.index === 5) {
+                                        return 'rgba(255, 255, 255, 0.5)';
+                                    }
+                                    return 'rgba(255, 255, 255, 0.1)';
+                                },
+                                lineWidth: function(context) {
+                                    if (context.index === 5) {
+                                        return 3;
+                                    }
+                                    return 1;
+                                }
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                color: '#ffffff',
+                                font: {
+                                    family: 'Fira Sans Extra Condensed',
+                                    size: 10
+                                },
+                                callback: function(value) {
+                                    return Math.abs(value); // Mostrar valors absoluts
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Crear gràfics per tots els canvas
+        document.querySelectorAll('canvas[id*="chart"]').forEach(canvas => {
+            const data = JSON.parse(canvas.dataset.chartData);
+            createChart(canvas.id, data, canvas.dataset.label, canvas.dataset.color);
+        });
+
+        // Crear gràfics de distribució de gols
+        document.querySelectorAll('canvas[id*="goalDistribution"]').forEach(canvas => {
+            const distributionData = JSON.parse(canvas.dataset.chartData);
+            const teamName = canvas.dataset.team;
+            const color = canvas.dataset.color;
+            createGoalDistributionChart(canvas.id, distributionData, teamName, color);
+        });
+    </script>
+</body>
+</html>
